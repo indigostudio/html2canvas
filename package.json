@@ -1,6 +1,7 @@
 {
   "title": "html2canvas",
-  "name": "html2canvas",
+  "name": "@indigo/html2canvas",
+  "private": false,
   "description": "Screenshots with JavaScript",
   "main": "dist/html2canvas.js",
   "module": "dist/html2canvas.esm.js",
@@ -17,7 +18,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git@github.com:niklasvh/html2canvas.git"
+    "url": "git@github.com:indigostudio/html2canvas.git"
   },
   "bugs": {
     "url": "https://github.com/niklasvh/html2canvas/issues"
@@ -92,6 +93,7 @@
   },
   "scripts": {
     "prebuild": "rimraf dist/ && rimraf build/ && mkdirp dist && mkdirp build",
+    "prepare": "npm run build",
     "build": "tsc --module commonjs && rollup -c rollup.config.ts && npm run build:create-reftest-list && npm run build:testrunner && npm run build:minify",
     "build:testrunner": "rollup -c tests/rollup.config.ts",
     "build:minify": "uglifyjs --compress --comments /^!/ -o dist/html2canvas.min.js --mangle -- dist/html2canvas.js",
@@ -108,7 +110,6 @@
     "watch:unittest": "mocha --require ts-node/register --watch-extensions ts -w src/**/__tests__/*.ts",
     "start": "node tests/server"
   },
-  "homepage": "https://html2canvas.hertzen.com",
   "license": "MIT",
   "dependencies": {
     "css-line-break": "1.1.1"
