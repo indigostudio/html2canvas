@@ -11,6 +11,7 @@ import {
     isStyleElement,
     isSVGElementNode,
     isTextareaElement,
+    isSlotElement,
     isTextNode
 } from './node-parser';
 import {Logger} from '../core/logger';
@@ -20,6 +21,7 @@ import {CounterState, createCounterText} from '../css/types/functions/counter';
 import {LIST_STYLE_TYPE, listStyleType} from '../css/property-descriptors/list-style-type';
 import {CSSParsedCounterDeclaration, CSSParsedPseudoDeclaration} from '../css/index';
 import {getQuote} from '../css/property-descriptors/quotes';
+import {nodeListToArr} from '../core/util';
 
 export interface CloneOptions {
     id: string;
@@ -282,7 +284,18 @@ export class DocumentCloner {
             const counters = this.counters.parse(new CSSParsedCounterDeclaration(style));
             const before = this.resolvePseudoContent(node, clone, styleBefore, PseudoElementType.BEFORE);
 
-            for (let child = node.firstChild; child; child = child.nextSibling) {
+            let children = node.shadowRoot ? nodeListToArr(node.shadowRoot.childNodes) : nodeListToArr(node.childNodes);
+            for (let i = 0; i < children.length; i++) {
+                let child = children[i] as Node;
+                if (isSlotElement(child)) {
+                    let assignedNodes = child.assignedNodes() as ChildNode[];
+                    if (assignedNodes.length > 0) {
+                        // replace the slot element with its assigned nodes, and then process them immediately
+                        children.splice(i, 1, ...assignedNodes);
+                        i -= 1;
+                        continue;
+                    }
+                }
                 if (
                     !isElementNode(child) ||
                     (!isScriptElement(child) &&
